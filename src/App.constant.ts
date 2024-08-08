@@ -1,0 +1,1 @@
+export const SUPPORTED_PLATFORMS = ["Spotify", "Prime Music"];

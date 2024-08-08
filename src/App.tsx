@@ -1,7 +1,22 @@
 import { useEffect, useState } from "react";
+import { SUPPORTED_PLATFORMS } from "./App.constant";
 import "./App.css";
 import { ThemeProvider } from "./components/theme-provider";
-import { Button } from "./components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
 
 function App() {
   const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
@@ -17,8 +32,16 @@ function App() {
   useEffect(() => {
     if (token) {
       fetchWebApi("v1/me", "GET")
-        .then((data) => setData(data))
-        .catch((error) => console.error("Error fetching data:", error));
+        .then((data) => {
+          if (data.error) {
+            localStorage.removeItem("token");
+            setToken("");
+          } else setData(data);
+        })
+        .catch((error) => {
+          localStorage.removeItem("token");
+          setToken("");
+        });
     }
   }, [token]);
 
@@ -46,8 +69,7 @@ function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      <h1>My Top Tracks</h1>
-      <header className="App-header">
+      {/* <header className="App-header">
         {!token ? (
           <Button onClick={handleLogin}>Login to Spotify</Button>
         ) : (
@@ -56,8 +78,34 @@ function App() {
             <pre>{JSON.stringify(data, null, 2)}</pre>
           </div>
         )}
-      </header>
-      <h1 className="text-3xl font-bold underline">Hello world!</h1>
+      </header> */}
+      <div>
+        <h1 className="flex justify-center font-bold">Groove Hood</h1>
+        <h6 className="flex justify-center">Transfer Playlists between platforms seamlessly</h6>
+      </div>
+      <Card className="m-auto">
+        <CardHeader>
+          <CardTitle>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Source Platform" />
+              </SelectTrigger>
+              <SelectContent>
+                {SUPPORTED_PLATFORMS.map((platform: string) => (
+                  <SelectItem value={platform}>{platform}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </CardTitle>
+          <CardDescription>Card Description</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p>Card Content</p>
+        </CardContent>
+        <CardFooter>
+          <p>Card Footer</p>
+        </CardFooter>
+      </Card>
     </ThemeProvider>
   );
 }
