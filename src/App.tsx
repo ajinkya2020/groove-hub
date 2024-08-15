@@ -1,28 +1,12 @@
 import { useEffect, useState } from "react";
-import { SUPPORTED_PLATFORMS } from "./App.constant";
 import "./App.css";
-import { ThemeProvider } from "./components/theme-provider";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select";
 
 function App() {
   const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
   const [topTracks, setTopTracks] = useState<any>(undefined);
   const [token, setToken] = useState("");
   const [data, setData] = useState();
+  const [userPlaylists, setUserPlaylists] = useState([]);
 
   useEffect(() => {
     const token = window.localStorage.getItem("token")!;
@@ -67,46 +51,45 @@ function App() {
     window.location.href = `${AUTH_ENDPOINT}?client_id=${clientId}&redirect_uri=${REDIRECT_URI}&response_type=${RESPONSE_TYPE}`;
   };
 
+  const getUserPlaylists = () => {
+    if (token) {
+      fetchWebApi("v1/me/playlists", "GET")
+        .then((data) => {
+          if(data.error) {
+            console.error(data)
+          } else {
+            console.log(data);
+            setUserPlaylists(data);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+      }
+  }
+
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-      {/* <header className="App-header">
+    <>
+      <div className="my-5">
+        <span className="text-xl font-bold">Groove Hood</span>
+      </div>
+      <header className="App-header">
         {!token ? (
-          <Button onClick={handleLogin}>Login to Spotify</Button>
+          <button onClick={handleLogin}>Login to Spotify</button>
         ) : (
           <div>
-            <h1>Logged in as {data?.display_name}</h1>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
+            {/* <h1>Logged in as {data?.display_name}</h1>
+            <pre>{JSON.stringify(data, null, 2)}</pre> */}
+            <button onClick={getUserPlaylists}>View Playlists</button>
+            {<ul>
+              {userPlaylists?.items?.map((playlistInfo, idx) => {
+                return <li key={idx}>{playlistInfo.name}</li>
+              })}
+            </ul>}
           </div>
         )}
-      </header> */}
-      <div>
-        <h1 className="flex justify-center font-bold">Groove Hood</h1>
-        <h6 className="flex justify-center">Transfer Playlists between platforms seamlessly</h6>
-      </div>
-      <Card className="m-auto">
-        <CardHeader>
-          <CardTitle>
-            <Select>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Source Platform" />
-              </SelectTrigger>
-              <SelectContent>
-                {SUPPORTED_PLATFORMS.map((platform: string) => (
-                  <SelectItem value={platform}>{platform}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </CardTitle>
-          <CardDescription>Card Description</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p>Card Content</p>
-        </CardContent>
-        <CardFooter>
-          <p>Card Footer</p>
-        </CardFooter>
-      </Card>
-    </ThemeProvider>
+      </header>
+    </>
   );
 }
 
