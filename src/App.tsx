@@ -1,5 +1,7 @@
+import { Button, MantineProvider } from '@mantine/core';
+import '@mantine/core/styles.css';
 import { useEffect, useState } from "react";
-import "./App.css";
+import "./App.scss";
 
 function App() {
   const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
@@ -69,13 +71,13 @@ function App() {
   }
 
   return (
-    <>
+    <MantineProvider defaultColorScheme='dark'>
       <div className="my-5">
         <span className="text-xl font-bold">Groove Hood</span>
       </div>
       <header className="App-header">
         {!token ? (
-          <button onClick={handleLogin}>Login to Spotify</button>
+          <Button onClick={handleLogin}>Login to Spotify</Button>
         ) : (
           <div>
             {/* <h1>Logged in as {data?.display_name}</h1>
@@ -89,7 +91,7 @@ function App() {
           </div>
         )}
       </header>
-    </>
+    </MantineProvider>
   );
 }
 
