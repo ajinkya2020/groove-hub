@@ -5,7 +5,7 @@ export const Authorize = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hash = location.hash;
+    const hash = window.location.hash;
     let token = localStorage.getItem('spotifyToken');
 
     if (!token && hash) {

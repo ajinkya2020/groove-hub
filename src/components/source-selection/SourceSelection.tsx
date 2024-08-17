@@ -1,23 +1,13 @@
 import { commonService } from "@/shared/common-service";
-import { Button } from "@mantine/core";
+import { Button, Flex } from "@mantine/core";
 import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
+import { SourceInfo } from "./SourceSelection.interface";
 
 const SourceSelection = () => {
   const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
   const [spotifyToken, setSpotifyToken] = useState("");
   const [userPlaylists, setUserPlaylists] = useState([]);
-
-  useEffect(() => {
-    const token = window.localStorage.getItem("spotifyToken")!;
-    setSpotifyToken(token);
-  }, []);
-
-  useEffect(() => {
-    if (spotifyToken) {
-      getSpotifyUser();
-    }
-  }, [spotifyToken]);
 
   const getSpotifyUser = () => {
     commonService
@@ -29,10 +19,37 @@ const SourceSelection = () => {
       .catch((error: AxiosError) => {
         handleLogin();
         console.log(error.message);
-        localStorage.removeItem("spotifyToken");
-        setSpotifyToken("");
       });
   };
+
+  const sourceInfoList: SourceInfo[] = [
+    {
+      key: "spotify",
+      imgPath: "/spotify.svg",
+      handleLogin: getSpotifyUser,
+    },
+    {
+      key: "amazonMusic",
+      imgPath: "/amazonMusic.svg",
+      handleLogin: getSpotifyUser,
+    },
+    {
+      key: "appleMusic",
+      imgPath: "/appleMusic.svg",
+      handleLogin: getSpotifyUser,
+    },
+    {
+      key: "youtubeMusic",
+      imgPath: "/youtubeMusic.svg",
+      handleLogin: getSpotifyUser,
+    },
+  ];
+
+  useEffect(() => {
+    const token = window.localStorage.getItem("spotifyToken")!;
+    setSpotifyToken(token);
+    getUserPlaylists();
+  }, []);
 
   const handleLogin = () => {
     const REDIRECT_URI = "http://localhost:5173/authorize";
@@ -56,23 +73,41 @@ const SourceSelection = () => {
   };
 
   return (
-    <header className="App-header">
-      {!userPlaylists.length ? (
-        <Button onClick={getSpotifyUser}>Login to Spotify</Button>
-      ) : (
-        <div>
-          <button onClick={getUserPlaylists}>View Playlists</button>
-          {
-            <ul>
-              {userPlaylists?.items?.map((playlistInfo, idx) => {
-                return <li key={idx}>{playlistInfo.name}</li>;
-              })}
-            </ul>
-          }
-        </div>
-      )}
-    </header>
+    // <header className="App-header">
+    //   {!userPlaylists.length ? (
+    //     <Button onClick={getSpotifyUser}>Login to Spotify</Button>
+    //   ) : (
+    //     <div>
+    //       <button onClick={getUserPlaylists}>View Playlists</button>
+    //       {
+    //         <ul>
+    //           {userPlaylists?.items?.map((playlistInfo, idx) => {
+    //             return <li key={idx}>{playlistInfo.name}</li>;
+    //           })}
+    //         </ul>
+    //       }
+    //     </div>
+    //   )}
+    // </header>
+    <>
+      {/* <Card withBorder shadow="sm" radius="md"> */}
+      <Flex gap={60} justify={'center'}>
+        {sourceInfoList.map((source) => (
+          <Button
+            key={source.key}
+            variant="default"
+            className="w-44 h-40 rounded-2xl"
+            onClick={source.handleLogin}
+          >
+            <div className="text-2xl">
+              <img src={source.imgPath} />
+            </div>
+          </Button>
+        ))}
+      </Flex>
+      {/* </Card> */}
+    </>
   );
-}
+};
 
-export default SourceSelection
+export default SourceSelection;
